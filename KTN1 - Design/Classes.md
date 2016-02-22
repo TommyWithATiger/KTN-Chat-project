@@ -1,9 +1,14 @@
 ##Client
 
-
 Handles client logic
 
 ####Methods
+
+* **disconnect(self)** - Handles log out and disconnect from server
+* **run(self)** - Connects to client to server
+* **receiveMessage(self, message)** - Handles incoming message
+* **sendPayload(self, payload)** - Handles sending of payload
+* **printFormattedMessage(message)** - Prints formatted message/error
 
 ##MessageReceiver
 
