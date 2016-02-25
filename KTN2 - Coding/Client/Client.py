@@ -3,6 +3,7 @@ import socket
 from MessageReceiver import MessageReceiver
 from MessageParser import MessageParser
 
+
 class Client:
     """
     This is the chat client class
