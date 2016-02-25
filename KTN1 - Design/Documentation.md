@@ -60,7 +60,7 @@ Contains all server logic
 ## Variables
 
 * **history** - List containing message objects for all messages sent while server was running
-* **users** - Dictionary with username as key and ClientHandler object for all users. If user hasn't logged in yet the username is set to \*
+* **users** - Dictionary with username as key and ClientHandler object for all users. If user hasn't logged in yet the username is set to "\*", the wildcard character
 
 ## Functions
 
@@ -87,7 +87,7 @@ Handles connection between server and client
 
 ##### Variables
 
-* **ip** - Ip address of client
+* **ip** - IP address of client
 * **port** - Client port
 * **connection** - Connection between client and server
 
