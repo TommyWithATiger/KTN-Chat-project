@@ -13,6 +13,8 @@ Handles client logic
 ##### Variables
 
 * **connection** - Connection to server
+* **server_port** - Server port
+* **host** - Server host address
 
 ##### Methods
 
@@ -29,6 +31,11 @@ Handles client logic
 ### MessageReceiver
 
 Handles message receiving
+
+##### Variables
+
+* **client** - The client object
+* **connection** - The connection to the server
 
 ##### Methods
 
@@ -64,7 +71,8 @@ Contains all server logic
 ## Variables
 
 * **history** - List containing message objects for all messages sent while server was running
-* **users** - Dictionary with username as key and ClientHandler object for all users. If user hasn't logged in yet the username is set to "\*", the wildcard character
+* **users** - Dictionary with username as key and ClientHandler object for all users who have logged in.
+* **unlogged_users** - List of all clients that have not logged in.
 
 ## Functions
 
@@ -99,7 +107,7 @@ Handles connection between server and client
 
 * **handle(self)** - Setup a connection between the client and server and waits for messages from client
 * **close(self)** - Closes connection between the client and server
-* **send(self, payload)** - Sends a message to the client
+* **send(self, payload)** - Sends a message to the client, encodes the payload (From JSON to string)
 
 # Message.py
 
