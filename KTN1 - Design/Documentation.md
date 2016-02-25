@@ -1,5 +1,9 @@
 # Client.py
 
+## Functions
+
+* **run()** - Logic for input at run level
+
 ## Classes
 
 ### Client
