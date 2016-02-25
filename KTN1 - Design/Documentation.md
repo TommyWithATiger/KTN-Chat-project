@@ -1,5 +1,7 @@
 # Client.py
 
+## Variables
+
 ## Functions
 
 * **print\_formatted\_message(message)** - Prints formatted message/error
@@ -19,6 +21,8 @@ Handles client logic
 
 # MessageReceiver.py
 
+## Variables
+
 ## Functions
 
 ## Classes
@@ -33,6 +37,8 @@ Handles message receiving
 * **run(self)** - Handles receiving payload
 
 # MessageParser.py
+
+## Variables
 
 ## Functions
 
@@ -71,7 +77,6 @@ Contains all server logic
 * **parse\_message(payload, user)** - Saves message object and sends message to all other users logged in to the server
 * **parse\_help(user)** - Sends a response to the user with a help text
 * **parse\_names(user)** - Sends the user a response of all logged in users
-* ****
 
 ## Classes
 
@@ -94,6 +99,10 @@ Handles connection between server and client
 * **send(self, payload)** - Sends a message to the client
 
 # Message.py
+
+## Variables
+
+## Functions
 
 ## Classes
 
