@@ -83,12 +83,12 @@ Contains all server logic
 
 * **username_available(username : string)** - Returns True if the username is free, returns False if username is taken. 
 * **valid_username(username : string)** - Returns True if the username is in the format [A-z0-9]+
-* **parse_request(payload : string, user : Client)** - Parses the json object and calls on another function for handling the request. Checks if user is logged in, if not limits user commands to help and login.
-* **parse_login(message : string, user: Client)** - Checks if the user is logged in, username is in wrong format or username is taken and sends error message if necessary, if not register user and send info response. Sends any message history the server has
-* **parse_logout(user: Client)** - Disconnects the user, removes user from user dictionary
-* **parse_message(message : string, user : Client)** - Saves message object and sends message to all other users logged in to the server
-* **parse_help(user : Client)** - Sends a response to the user with a help text
-* **parse_names(user : Client)** - Sends the user a response of all logged in users
+* **parse_request(payload : string, user : ClientHandler)** - Parses the json object and calls on another function for handling the request. Checks if user is logged in, if not limits user commands to help and login.
+* **parse_login(username : string, user: ClientHandler)** - Checks if the user is logged in, username is in wrong format or username is taken and sends error message if necessary, if not register user and send info response. Sends any message history the server has
+* **parse_logout(user: ClientHandler)** - Disconnects the user, removes user from user dictionary
+* **parse_message(message : string, user : ClientHandler)** - Saves message object and sends message to all other users logged in to the server
+* **parse_help(user : ClientHandler)** - Sends a response to the user with a help text
+* **parse_names(user : ClientHandler)** - Sends the user a response of all logged in users
 
 ## Classes
 
@@ -131,7 +131,4 @@ Creates message objects, used for history
 ##### Methods
 
 * **Message(self, message\_text: string, username: string, timestamp: string)** - Creates a message object containing message text, user and timestamp
-* **get\_message\_text(self)** - Returns message text
-* **get\_user(self)** - Returns username for the sender of the message
-* **get\_timestamp(self)** - Returns timestamp for the message
 * **to_JSON(self)** - Returns a json response in the server response format with timestamp as original timestamp for message, sender as user, response as "Message" and content as message text
