@@ -28,10 +28,6 @@ class Client:
         # TODO: Handle disconnection
         pass
 
-    def receive_message(self, message):
-        # TODO: Handle incoming message
-        pass
-
     def send_payload(self, data):
         # TODO: Handle sending of a payload
         pass
