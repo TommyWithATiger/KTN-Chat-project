@@ -2,7 +2,12 @@
 
 ## Functions
 
-* **run()** - Logic for input at run level
+* **run()** - Handles logic at runtime, this includes taking input from the user and parsing the input into the send_payload() method in the client object. This function also prints out a short message at startup with information about the client.
+
+## Variables
+
+* **client** - The client object created at startup. 
+* **message_parser** - A MessageParser object.
 
 ## Classes
 
@@ -12,17 +17,16 @@ Handles client logic
 
 ##### Variables
 
-* **connection** - Connection to server
-* **server_port** - Server port
-* **host** - Server host address
+* **connection** - The connection to the server.
+* **server_port** - The port on the server for the connection.
+* **host** - The host address of the server.
 
 ##### Methods
 
-* **\_\_init\_\_(self, host, server_port)** - Setup connection variable and calls run method for connecting the client to the server
-* **disconnect(self)** - Handles log out and disconnect from server
-* **run(self)** - Connects to client to server
-* **receive\_message(self, message)** - Handles incoming message
-* **send\_payload(self, payload)** - Handles sending of payload
+* **\_\_init\_\_(self, host, server_port)** - Setup connection variables and calls run method for connecting the client to the server
+* **disconnect(self)** - Handles log out and disconnect from server, stops all the MessageReceiver thread.
+* **run(self)** - Connects the client to the server, starts a MessageReceiver thread for receiving messages from the server. 
+* **send\_payload(self, data)** - Handles sending of requests from client to server
 
 # MessageReceiver.py
 
@@ -34,35 +38,36 @@ Handles message receiving
 
 ##### Variables
 
-* **client** - The client object
+* **client** - The Client object
 * **connection** - The connection to the server
+* **message_parser** - A MessageParser object.
 
 ##### Methods
 
 * **\_\_init\_\_(self, client, connection)** - Creates a MessageReceiver object
-* **run(self)** - Handles receiving payload
+* **run(self)** - Listens to the connection for incoming messages from the server. Sends all messages to the parse() method in the MessageParser object. 
 
 # MessageParser.py
 
 ## Functions
 
-* **print\_formatted\_message(message)** - Prints formatted message/error
+* **print\_formatted\_message(timestamp, sender, response_type, contentr)** - Prints formatted message/error to the console.
 
 ## Classes
 
 ### MessageParser
 
-Code and decode json message
+Encodes, decodes and parses messages
 
 ##### Methods
 
 * **\_\_init\_\_(self)** - Creates a MessageParser object with a dictionary for response codes
 * **parse(self, payload)** - Parses and handles the json payload
-* **encode(self, payload)** - Encodes payload to json for transfer
-* **parse_error(self, payload)** - Handles a error response and prints the error message using print\_formatted\_message
-* **parse_info(self, payload)** - Handles a info response and prints the info message using print\_formatted\_message
-* **parse_message(self, payload)** - Handles a message response and prints the message using print\_formatted\_message
-* **parse_history(self, payload)** - Handles a history response, calls, parse_message for each message
+* **encode(self, request, content)** - Encodes request and content to json string.
+* **parse_error(self, payload)** - Handles a error response and prints the error message using print\_formatted\_message()
+* **parse_info(self, payload)** - Handles a info response and prints the info message using print\_formatted\_message()
+* **parse_message(self, payload)** - Handles a message response and prints the message using print\_formatted\_message()
+* **parse_history(self, payload)** - Handles a history response, calls parse_message() for each message
 
 # Server.py
 
