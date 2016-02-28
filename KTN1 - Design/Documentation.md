@@ -23,10 +23,10 @@ Handles client logic
 
 ##### Methods
 
-* **\_\_init\_\_(self, host, server_port)** - Setup connection variables and calls run method for connecting the client to the server
+* **Client(self, host : string, server_port : int)** - Setup connection variables and calls run method for connecting the client to the server
 * **disconnect(self)** - Handles log out and disconnect from server, stops all the MessageReceiver thread.
 * **run(self)** - Connects the client to the server, starts a MessageReceiver thread for receiving messages from the server. 
-* **send\_payload(self, data)** - Handles sending of requests from client to server
+* **send\_payload(self, data : string(json))** - Handles sending of requests from client to server
 
 # MessageReceiver.py
 
@@ -44,14 +44,14 @@ Handles message receiving
 
 ##### Methods
 
-* **\_\_init\_\_(self, client, connection)** - Creates a MessageReceiver object
+* **MessageReceiver(self, client : Client, connection : connection)** - Creates a MessageReceiver object
 * **run(self)** - Listens to the connection for incoming messages from the server. Sends all messages to the parse() method in the MessageParser object. 
 
 # MessageParser.py
 
 ## Functions
 
-* **print\_formatted\_message(timestamp, sender, response_type, contentr)** - Prints formatted message/error to the console.
+* **print\_formatted\_message(timestamp : string, response_type : string, content : string)** - Prints formatted message/error to the console.
 
 ## Classes
 
@@ -61,13 +61,13 @@ Encodes, decodes and parses messages
 
 ##### Methods
 
-* **\_\_init\_\_(self)** - Creates a MessageParser object with a dictionary for response codes
-* **parse(self, payload)** - Parses and handles the json payload
-* **encode(self, request, content)** - Encodes request and content to json string.
-* **parse_error(self, payload)** - Handles a error response and prints the error message using print\_formatted\_message()
-* **parse_info(self, payload)** - Handles a info response and prints the info message using print\_formatted\_message()
-* **parse_message(self, payload)** - Handles a message response and prints the message using print\_formatted\_message()
-* **parse_history(self, payload)** - Handles a history response, calls parse_message() for each message
+* **MessageParser(self)** - Creates a MessageParser object with a dictionary for response codes
+* **parse(self, payload : string)** - Parses and handles the json payload
+* **encode(self, request : string, content : string)** - Encodes request and content to json string.
+* **parse_error(self, payload : ?json)** - Handles a error response and prints the error message using print\_formatted\_message()
+* **parse_info(self, payload : ?json)** - Handles a info response and prints the info message using print\_formatted\_message()
+* **parse_message(self, payload : ?json)** - Handles a message response and prints the message using print\_formatted\_message()
+* **parse_history(self, payload : ?json)** - Handles a history response, calls parse_message() for each message
 
 # Server.py
 
@@ -81,14 +81,14 @@ Contains all server logic
 
 ## Functions
 
-* **username_available(username)** - Returns True if the username is free, returns False if username is taken. 
-* **valid_username(username)** - Returns True if the username is in the format [A-z0-9]+
-* **parse_request(payload, user)** - Parses the json object and calls on another function for handling the request. Checks if user is logged in, if not limits user commands to help and login.
-* **parse_login(payload, user)** - Checks if the user is logged in, username is in wrong format or username is taken and sends error message if necessary, if not register user and send info response. Sends any message history the server has
-* **parse_logout(user)** - Disconnects the user, removes user from user dictionary
-* **parse_message(payload, user)** - Saves message object and sends message to all other users logged in to the server
-* **parse_help(user)** - Sends a response to the user with a help text
-* **parse_names(user)** - Sends the user a response of all logged in users
+* **username_available(username : string)** - Returns True if the username is free, returns False if username is taken. 
+* **valid_username(username : string)** - Returns True if the username is in the format [A-z0-9]+
+* **parse_request(payload : string, user : Client)** - Parses the json object and calls on another function for handling the request. Checks if user is logged in, if not limits user commands to help and login.
+* **parse_login(message : string, user: Client)** - Checks if the user is logged in, username is in wrong format or username is taken and sends error message if necessary, if not register user and send info response. Sends any message history the server has
+* **parse_logout(user: Client)** - Disconnects the user, removes user from user dictionary
+* **parse_message(message : string, user : Client)** - Saves message object and sends message to all other users logged in to the server
+* **parse_help(user : Client)** - Sends a response to the user with a help text
+* **parse_names(user : Client)** - Sends the user a response of all logged in users
 
 ## Classes
 
@@ -112,7 +112,7 @@ Handles connection between server and client
 
 * **handle(self)** - Setup a connection between the client and server and waits for messages from client
 * **close(self)** - Closes connection between the client and server
-* **send(self, payload)** - Sends a message to the client, encodes the payload (From JSON to string)
+* **send(self, payload : string(json))** - Sends a message to the client, encodes the payload (From JSON to string)
 
 # Message.py
 
@@ -130,7 +130,7 @@ Creates message objects, used for history
 
 ##### Methods
 
-* **\_\_init\_\_(self, message\_text, username, timestamp)** - Creates a message object containing message text, user and timestamp
+* **Message(self, message\_text: string, username: string, timestamp: string)** - Creates a message object containing message text, user and timestamp
 * **get\_message\_text(self)** - Returns message text
 * **get\_user(self)** - Returns username for the sender of the message
 * **get\_timestamp(self)** - Returns timestamp for the message
