@@ -1,0 +1,161 @@
+\documentclass[a4paper, 12pt]{article}
+
+\title{KTN - Chat client/server}
+\author{Henrik Olsvik
+        \and Navjot Singh
+        \and Peter Holm
+        \and Philip Puente
+        \and Halvard Hummel}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Client}
+    \subsection{Client.py}
+        \subsubsection{Functions}
+            \begin{description}
+                \item[run()] - Handles logic at runtime, this includes taking input from the user and parsing the input into the send\_payload() method in the client object. This function also prints out a short message at startup with information about the client.
+            \end{description}
+        \subsubsection{Variables}
+            \begin{description}
+                \item[client] - The client object created at startup.
+                \item[message\_parser] - A MessageParser object, for encoding messages.
+            \end{description}
+        \subsubsection{Classes}
+            \textbf{\underline{Client}}
+            \newline
+            \newline
+                Handles client logic, e.g. creating a connection between the server and the client and sending messages to the server.
+                \newline
+                \newline
+                \textbf{Variables}
+                    \begin{description}
+                        \item[connection] - The connection to the server.
+                        \item[server\_port] - The port for the connection on the server.
+                        \item[host] - The host address for the server.
+                    \end{description}
+                \textbf{Methods}
+                    \begin{description}
+                        \item[Client(self, host : string, server\_port : int)] - Setup connection variables and calls run method for connecting the client to the server.
+                        \item[disconnect(self)] - Handles logout and disconnect from the server, stops the MessageReceiver thread.
+                        \item[run(self)] - Connects the client to the server, starts a MessageReceiver thread for receiving messages from the server.
+                        \item[send\_payload(self, data: string(json))] - Handles sending of requests from client to server.
+                    \end{description}
+    \subsection{MessageReceiver.py}
+        \subsubsection{Classes}
+            \textbf{\underline{MessageReceiver(Thread)}}
+            \newline
+            \newline
+                Handles message receiving for the client, runs as a own thread so the client can receive and send messages at the same time.
+                \newline
+                \newline
+                \textbf{Variables}
+                    \begin{description}
+                            \item[client] - The Client object connected to the server
+                            \item[connection] - The connection to the server from the client
+                            \item[message\_parser] - A MessageParser object for decoding and handling the content of incoming messages.
+                    \end{description}
+                \textbf{Methods}
+                    \begin{description}
+                            \item[MessageReciever(self, client : Client, connection : connection)] -
+
+                            Creates a MessageReciever object. Setup of variables.
+                            \item[run(self)] - Listens to the connection for incoming messages from the server. Sends all messages to the parse() method in the MessageParser object.
+                    \end{description}
+    \subsection{MessageParser.py}
+        \subsubsection{Functions}
+            \begin{description}
+                \item[\small{print\_formatted\_message(timestamp : string, response\_type : string, content : string)}] - Prints formatted message/error to the console.
+            \end{description}
+        \subsubsection{Classes}
+            \textbf{\underline{MessageParser}}
+            \newline
+            \newline
+                Encodes requests to json. Handles and decodes responses from the server.
+                \newline
+                \newline
+                \textbf{Variables}
+                    \begin{description}
+                        \item[possible\_responses] - A dictionary with possible response codes from the server as keys and the methods for parsing these a values.
+                    \end{description}
+                \textbf{Methods}
+                    \begin{description}
+                        \item[MessageParser(self)] - Creates a MessageParser object with a dictionary for possible response codes.
+                        \item[parse(self, payload : string)] - Parses and handles the json payload. Calls the appropriate method for handling the response from the server.
+                        \item[encode(self, request : string, content : string)] - Encodes request and content to json string.
+                        \item[parse\_error(payload : ?json)] - Handles an error response and prints the error message using print\_formatted\_message().
+                        \item[parse\_info(payload : ?json)] - Handles an info respone and prints the info message using print\_formatted\_message().
+                        \item[parse\_message(payload : ?json)] - Handles a message response and prints the message using print\_formatted\_message().
+                        \item[parse\_history (payload : ?json)] - Handles a history response, calls
+
+                        parse\_message() for each message.
+                    \end{description}
+\section{Server}
+    \subsection{Server.py}
+        \subsubsection{Functions}
+            \begin{description}
+                \item[username\_available(username : string)] - Returns boolean for availability of username.
+                \item[valid\_username(username : string)] - Returns if username is in the format [A-z0-9]+
+                \item[encode(sender : string, response : string, content : string)] - Returns a json string in the servers response format with the current time as timestamp.
+                \item[parse\_request(payload : string, user : ClientHandler)] - Parses the json object, checks if the user has access to the request and call on the appropriate function for handling the request (request\_codes).
+                \item[parse\_login(username : string, user : ClientHandler)] - Checks if the user is logged in, username is in wrong format or username is taken and sends error message if necessary, if not register user and send info response. Sends any message history the server has.
+                \item[parse\_logout(user : ClientHandler)] - Disconnects the user, removes user from user dictionary.
+                \item[parse\_message(message : string, user : ClientHandler)] - Adds message object to history and sends message to all other users logged in to the server.
+                \item[parse\_help(user : ClientHandler)] - Sends the user a response to the user with a help text.
+                \item[parse\_names(user : ClientHandler)] - Sends the user a response with the username of all logged in users.
+            \end{description}
+        \subsubsection{Variables}
+            \begin{description}
+                \item[history] - List containing message objects (2.2.1) for all messages sent while the server has been running.
+                \item[users] - Dictionary with username as key and ClientHandler object as value, for all users who have logged in.
+                \item[unlogged\_users] - List of all clients that have not logged in.
+                \item[request\_codes] - Dictionary with all request codes supported by the server as keys and the functions for handling these as values.
+            \end{description}
+        \subsubsection{Classes}
+            \textbf{\underline{ThreadedTCPServer(ThreadingMixIn, TCPServer)}}
+            \newline
+            \newline
+            Creates threads for server
+            \begin{itemize}
+                \item Builds on the \textbf{socketserver} packet and will not be changed.
+            \end{itemize}
+            \textbf{\underline{ClientHandler(BaseRequestHandler)}}
+            \newline
+            \newline
+                Handles connection between server and client, listens for requests from client and sends responses to client.
+                \newline
+                \newline
+                \textbf{Variables}
+                    \begin{description}
+                        \item[ip] - IP address of client.
+                        \item[port] - Port for the connection at the client.
+                        \item[connection] - The connection between the client and the server.
+                    \end{description}
+                \textbf{Methods}
+                    \begin{description}
+                        \item[handle(self)] - Handles the connection between the client and the server and waits for messages from the client
+                        \item[close(self)] - Closes the connection between the client and the server.
+                        \item[self, payload : string(json)] - Sends a message to the client.
+                    \end{description}
+    \subsection{Message.py}
+        \subsubsection{Classes}
+            \textbf{\underline{Message}}
+            \newline
+            \newline
+                Creates nessage objects, user for history
+                \newline
+                \newline
+                \textbf{Variables}
+                    \begin{description}
+                        \item[message\_text] - Text content of the message.
+                        \item[user] - Username of the message sender.
+                        \item[timestamp] - Timestamp for when the message was received at the server
+                    \end{description}
+                \textbf{Methods}
+                    \begin{description}
+                        \item[Message(self, message\_text : string, username : string, timestamp : string)] - Creates a message object containing message text, username and timestamp.
+                        \item[to\_JSON(self)] - Returns a json string in the servers response format with the "Message" as the response code and fills the other fields with the content from the fields of the object.
+                    \end{description}
+
+\end{document}
