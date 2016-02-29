@@ -1,0 +1,6 @@
+MessageParser.py - Henrik
+Server.py [- ClientHandler] - Halvard
+ClientHandler - Philip
+Client.py - Navjot
+Message.py - Philip
+MessageReceiver.py - Peter
