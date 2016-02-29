@@ -1,2 +1,5 @@
 .idea
 *__pycache__
+*/Documentation.aux
+*/Documentation.log
+*/texput.log
