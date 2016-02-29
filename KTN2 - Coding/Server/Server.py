@@ -66,6 +66,7 @@ def parse_login(username, user):
         user.send(encode("server", "error", "Username taken"))
         return
     users[user] = username
+    unlogged_users.remove(user)
     user.send(encode("server", "info", "Login successful!"))
     history_json = []
     for message in history:
