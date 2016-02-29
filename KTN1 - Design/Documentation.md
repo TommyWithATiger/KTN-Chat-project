@@ -24,7 +24,7 @@ Handles client logic
 ##### Methods
 
 * **Client(self, host : string, server_port : int)** - Setup connection variables and calls run method for connecting the client to the server
-* **disconnect(self)** - Handles log out and disconnect from server, stops all the MessageReceiver thread.
+* **disconnect(self)** - Handles logout and disconnect from the server, stops the MessageReceiver thread.
 * **run(self)** - Connects the client to the server, starts a MessageReceiver thread for receiving messages from the server. 
 * **send\_payload(self, data : string(json))** - Handles sending of requests from client to server
 
@@ -32,19 +32,19 @@ Handles client logic
 
 ## Classes
 
-### MessageReceiver
+### MessageReceiver(Thread)
 
 Handles message receiving
 
 ##### Variables
 
-* **client** - The Client object
-* **connection** - The connection to the server
-* **message_parser** - A MessageParser object.
+* **client** - The Client object connected to the server.
+* **connection** - The connection to the server from the client. 
+* **message_parser** - A MessageParser object for decoding and handling the content of incoming messages.
 
 ##### Methods
 
-* **MessageReceiver(self, client : Client, connection : connection)** - Creates a MessageReceiver object
+* **MessageReceiver(self, client : Client, connection : connection)** - Creates a MessageReceiver object. Setup of variables.
 * **run(self)** - Listens to the connection for incoming messages from the server. Sends all messages to the parse() method in the MessageParser object. 
 
 # MessageParser.py
@@ -59,36 +59,42 @@ Handles message receiving
 
 Encodes, decodes and parses messages
 
+##### Variables
+
+* **possible\_responses** - A dictionary with possible response codes from the server as keys and the methods for parsing these a values.
+
 ##### Methods
 
 * **MessageParser(self)** - Creates a MessageParser object with a dictionary for response codes
 * **parse(self, payload : string)** - Parses and handles the json payload
-* **encode(self, request : string, content : string)** - Encodes request and content to json string.
-* **parse_error(self, payload : ?json)** - Handles a error response and prints the error message using print\_formatted\_message()
-* **parse_info(self, payload : ?json)** - Handles a info response and prints the info message using print\_formatted\_message()
-* **parse_message(self, payload : ?json)** - Handles a message response and prints the message using print\_formatted\_message()
-* **parse_history(self, payload : ?json)** - Handles a history response, calls parse_message() for each message
+* **encode(request : string, content : string)** - Encodes request and content to json string.
+* **parse_error(payload : ?json)** - Handles an error response and prints the error message using print\_formatted\_message()
+* **parse_info(payload : ?json)** - Handles an info response and prints the info message using print\_formatted\_message()
+* **parse_message(payload : ?json)** - Handles a message response and prints the message using print\_formatted\_message()
+* **parse_history(payload : ?json)** - Handles a history response, calls parse_message() for each message
 
 # Server.py
 
 Contains all server logic
 
-## Variables
-
-* **history** - List containing message objects for all messages sent while server was running
-* **users** - Dictionary with username as key and ClientHandler object for all users who have logged in.
-* **unlogged_users** - List of all clients that have not logged in.
-
 ## Functions
 
-* **username_available(username : string)** - Returns True if the username is free, returns False if username is taken. 
-* **valid_username(username : string)** - Returns True if the username is in the format [A-z0-9]+
-* **parse_request(payload : string, user : ClientHandler)** - Parses the json object and calls on another function for handling the request. Checks if user is logged in, if not limits user commands to help and login.
+* **username_available(username : string)** - Returns boolean for availability of username.
+* **valid_username(username : string)** -  Returns if username is in the format [A-z0-9]+
+* **encode(sender : string, response : string, content : string)** - Returns a json string in the servers response format with the current time as timestamp.
+* **parse_request(payload : string, user : ClientHandler)** - Parses the json object, checks if the user has access to the request and call on the appropriate function for handling the request (request\_codes).
 * **parse_login(username : string, user: ClientHandler)** - Checks if the user is logged in, username is in wrong format or username is taken and sends error message if necessary, if not register user and send info response. Sends any message history the server has
 * **parse_logout(user: ClientHandler)** - Disconnects the user, removes user from user dictionary
-* **parse_message(message : string, user : ClientHandler)** - Saves message object and sends message to all other users logged in to the server
-* **parse_help(user : ClientHandler)** - Sends a response to the user with a help text
-* **parse_names(user : ClientHandler)** - Sends the user a response of all logged in users
+* **parse_message(message : string, user : ClientHandler)** - Adds message object to history and sends message to all other users logged in to the server.
+* **parse_help(user : ClientHandler)** - Sends the user a response to the user with a help text
+* **parse_names(user : ClientHandler)** - Sends the user a response with the username of all logged in users.
+
+## Variables
+
+* **history** - List containing message objects for all messages sent while server has been running
+* **users** - Dictionary with username as key and ClientHandler object as value, for all users who have logged in.
+* **unlogged_users** - List of all clients that have not logged in.
+* **request\_codes** - Dictionary with all request codes supported by the server as keys and the functions for handling these as values.
 
 ## Classes
 
@@ -100,19 +106,19 @@ Creates threads for server
 
 ### ClientHandler
 
-Handles connection between server and client
+Handles connection between server and client, listens for requests from client and sends responses to client.
 
 ##### Variables
 
 * **ip** - IP address of client
-* **port** - Client port
-* **connection** - Connection between client and server
+* **port** - Port for the connection at the client.
+* **connection** - The connection between the client and the server.
 
 ##### Methods
 
-* **handle(self)** - Setup a connection between the client and server and waits for messages from client
-* **close(self)** - Closes connection between the client and server
-* **send(self, payload : string(json))** - Sends a message to the client, encodes the payload (From JSON to string)
+* **handle(self)** - Handles the connection between the client and the server and waits for messages from the client
+* **close(self)** - Closes the connection between the client and the server.
+* **send(self, payload : string(json))** - Sends a message to the client.
 
 # Message.py
 
@@ -124,11 +130,11 @@ Creates message objects, used for history
 
 ##### Variables
 
-* **message\_text** - String with text content of the message
+* **message\_text** - String with the text content of the message
 * **user** - String for username of message sender
 * **timestamp** - String with timestamp of message received at server
 
 ##### Methods
 
 * **Message(self, message\_text: string, username: string, timestamp: string)** - Creates a message object containing message text, user and timestamp
-* **to_JSON(self)** - Returns a json response in the server response format with timestamp as original timestamp for message, sender as user, response as "Message" and content as message text
+* **to_JSON(self)** - Returns a json string in the servers response format with the "Message" as the response code and fills the other fields with the content from the fields of the object.
