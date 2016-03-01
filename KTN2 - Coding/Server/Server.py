@@ -3,7 +3,7 @@ import socketserver
 import re
 import json
 from datetime import datetime
-import Message
+from Message import Message
 
 
 def username_available(username):
@@ -126,12 +126,18 @@ class ClientHandler(socketserver.BaseRequestHandler):
         self.ip = self.client_address[0]
         self.port = self.client_address[1]
         self.connection = self.request
+        self.run = True
 
         # Loop that listens for messages from the client
-        while True:
+        while self.run:
             received_string = self.connection.recv(4096)
+            parse_request(received_string.decode(), self)
 
-            # TODO: Add handling of received payload from client
+    def close(self):
+        self.run = False
+
+    def send(self, payload):
+        self.connection.send(payload.encode("utf-8"))
 
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
