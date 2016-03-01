@@ -11,7 +11,8 @@ def username_available(username):
 
 
 def valid_username(username):
-    return re.match("[A-Za-z0-9]+", username) == username
+    pattern = re.compile("^[A-Za-z0-9]+$")
+    return pattern.match(username)
 
 
 def user_logged_in(user):
@@ -38,14 +39,19 @@ def encode(sender, response, content):
 
 
 def parse_request(payload, user):
-    payload = json.loads(payload)
-    if not user_logged_in(user) and payload['request'] not in ['help', 'login']:
-        user.send(encode("server", "error", "Please login to get access to that command, use 'help' for login help"))
-    if payload['request'] in request_codes.keys():
-        request_codes[payload['request']](payload['content'], user)
-    else:
-        user.send(encode("server", "error",
-                         "Request not supported by the server, use 'help' for a list of supported requests"))
+    if len(payload) == 0:
+        return
+    try:
+        payload = json.loads(payload)
+        if (not user_logged_in(user)) and payload['request'] not in ['help', 'login']:
+            user.send(encode("server", "error", "Please login to get access to that command, use 'help' for login help"))
+        elif payload['request'] in request_codes.keys():
+            request_codes[payload['request']](payload['content'], user)
+        else:
+            user.send(encode("server", "error",
+                             "Request not supported by the server, use 'help' for a list of supported requests"))
+    except:
+        user.send(encode("server", "error", "Could not handle input, sending to fast or in the wrong format?"))
 
 
 def parse_login(username, user):
@@ -60,15 +66,16 @@ def parse_login(username, user):
         users[user] = username
         unlogged_users.remove(user)
         user.send(encode("server", "info", "Login successful!"))
-        history_json = []
-        for message in history:
-            history_json.append(json.load(message.to_JSON))
-        user.send(encode("server", "history", history_json))
+        if len(history) != 0:
+            history_json = []
+            for message in history:
+                history_json.append(json.loads(message.to_JSON()))
+            user.send(encode("server", "history", history_json))
 
 
 def parse_logout(content, user):
     if user_logged_in(user):
-        users.pop(get_username(user))
+        users.pop(user)
     else:
         unlogged_users.remove(user)
     user.close()
@@ -77,14 +84,14 @@ def parse_logout(content, user):
 def parse_message(message, user):
     message = Message(message, get_username(user), current_timestamp())
     history.append(message)
-    message_JSON = message.to_JSON
-    for client in users.values():
+    message_JSON = message.to_JSON()
+    for client in users.keys():
         if client != user:
-            client.send_payload(message_JSON)
+            client.send(message_JSON)
 
 
 def parse_help(content, user):
-    user.send(encode("server", "info", "Supported requests are: \n "
+    user.send(encode("server", "info", "Supported requests are: \n"
                                        "login <username> - Login to the server with the specified username \n"
                                        "logout - Log out and disconnect from the server \n"
                                        "msg <message> - Sends the specified message to all connected users \n"
@@ -94,7 +101,7 @@ def parse_help(content, user):
 
 def parse_names(content, user):
     username_list = ""
-    for username in users.keys():
+    for username in users.values():
         username_list += username + ", "
     user.send(encode("server", "info", username_list[0:-2]))
 
@@ -112,21 +119,12 @@ request_codes = {
 
 
 class ClientHandler(socketserver.BaseRequestHandler):
-    """
-    This is the ClientHandler class. Everytime a new client connects to the
-    server, a new ClientHandler object will be created. This class represents
-    only connected clients, and not the server itself. If you want to write
-    logic for the server, you must write it outside this class
-    """
-
     def handle(self):
-        """
-        This method handles the connection between a client and the server.
-        """
         self.ip = self.client_address[0]
         self.port = self.client_address[1]
         self.connection = self.request
         self.run = True
+        unlogged_users.append(self)
 
         # Loop that listens for messages from the client
         while self.run:
@@ -141,22 +139,10 @@ class ClientHandler(socketserver.BaseRequestHandler):
 
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
-    """
-    This class is present so that each client connected will be ran as a own
-    thread. In that way, all clients will be served by the server.
-
-    No alterations are necessary
-    """
     allow_reuse_address = True
 
 
 if __name__ == "__main__":
-    """
-    This is the main method and is executed when you type "python Server.py"
-    in your terminal.
-
-    No alterations are necessary
-    """
     HOST, PORT = 'localhost', 9998
     print('Server running...')
 
