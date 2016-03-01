@@ -2,7 +2,7 @@
 import socketserver
 import re
 import json
-import datetime
+from datetime import datetime
 import Message
 
 
@@ -19,28 +19,22 @@ def user_logged_in(user):
 
 
 def get_username(user):
-    for client, username in users.items():
-        if client == user:
-            return username
+    if user_logged_in(user):
+        return users[user]
     return ""
 
 
 def current_timestamp():
-    time = datetime.datetime.now()
-    timestamp = "0" * (time.month < 10) + str(time.month) + "." + "0" * (time.day < 10) + str(time.day) + " "
-    timestamp += "0" * (time.hour < 10) + str(time.hour) + ":" + "0" * (time.minute < 10) + str(
-            time.minute) + ":" + "0" * (time.second < 10) + str(time.second)
-    return timestamp
+    return datetime.now().strftime("%m.%d %H:%M%:%S")
 
 
 def encode(sender, response, content):
-    json_object = {
+    return json.dumps({
         'timestamp': current_timestamp(),
         'sender': sender,
         'response': response,
         'content': content
-    }
-    return json.dumps(json_object, separators=(',', ':'))
+    })
 
 
 def parse_request(payload, user):
@@ -57,21 +51,19 @@ def parse_request(payload, user):
 def parse_login(username, user):
     if user_logged_in(user):
         user.send(encode("server", "error", "Username already taken"))
-        return
-    if not valid_username(username):
+    elif not valid_username(username):
         user.send(encode("server", "error",
                          "Username not valid, username has to be capital/lowercase letters and/or numbers"))
-        return
-    if not username_available(username):
+    elif not username_available(username):
         user.send(encode("server", "error", "Username taken"))
-        return
-    users[user] = username
-    unlogged_users.remove(user)
-    user.send(encode("server", "info", "Login successful!"))
-    history_json = []
-    for message in history:
-        history_json.append(json.load(message.to_JSON))
-    user.send(encode("server", "history", history_json))
+    else:
+        users[user] = username
+        unlogged_users.remove(user)
+        user.send(encode("server", "info", "Login successful!"))
+        history_json = []
+        for message in history:
+            history_json.append(json.load(message.to_JSON))
+        user.send(encode("server", "history", history_json))
 
 
 def parse_logout(content, user):
