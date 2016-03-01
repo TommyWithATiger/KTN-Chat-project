@@ -84,24 +84,19 @@ def parse_message(message, user):
 
 
 def parse_help(content, user):
-    help_message = "Supported requests are: \n " \
-                   "login <username> - Login to the server with the specified username \n" \
-                   "logout - Log out and disconnect from the server \n" \
-                   "msg <message> - Sends the specified message to all connected users \n" \
-                   "names - A list of the username of all connected users \n" \
-                   "help - Shows all requests supported by the server"
-    user.send(encode("server", "info", help_message))
+    user.send(encode("server", "info", "Supported requests are: \n "
+                                       "login <username> - Login to the server with the specified username \n"
+                                       "logout - Log out and disconnect from the server \n"
+                                       "msg <message> - Sends the specified message to all connected users \n"
+                                       "names - A list of the username of all connected users \n"
+                                       "help - Shows all requests supported by the server"))
 
 
 def parse_names(content, user):
     username_list = ""
     for username in users.keys():
         username_list += username + ", "
-    if len(username_list) != 0:
-        username_list = username_list[0:-2]
-    else:
-        username_list = "No users logged in"
-    user.send(encode("server", "info", username_list))
+    user.send(encode("server", "info", username_list[0:-2]))
 
 
 history = []
