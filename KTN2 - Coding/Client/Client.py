@@ -36,14 +36,14 @@ def run():
         if (textIn[0] == "!"):
             textIn = textIn[1:]
             textIn = textIn.split(" ", 1)
-            message_parser.encode(textIn[0], textIn[1])
+            send_payload(message_parser.encode(textIn[0], textIn[1]))
             if (textIn[0] == "logout"):
                 connected = False
                 client.disconnect()
         elif (textIn[0] == "?"):
-            print("How the client works:/nUse Requests by typing '!YourRequest' 'content'/nAvailable requests:/nlogin <username>/nlogout/names (list users in chat)")
+            print("How the client works:/nUse Requests by typing '!YourRequest' 'content'/nAvailable requests:/nlogin <username>/nlogout/nnames (list users in chat)")
         else:
-            message_parser.encode("msg" , textIn)
+            send_payload(message_parser.encode("msg" , textIn))
 
 if __name__ == '__main__':
     """
