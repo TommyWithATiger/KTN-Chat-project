@@ -14,20 +14,36 @@ class Client:
         self.run()
 
     def run(self):
-        self.messagereceiver = MessageReceiver(self, self.connection)
+        self.messagereceiver = MessageReceiver(self.connection)
         self.connection.connect((self.host, self.server_port))
         
     def disconnect(self):
-        self.messagereceiver.MessageReceiver(self, self.connection)
-        self.connection.exit()
+        self.messagereceiver.exit()
         pass
 
     def send_payload(self, data):
-        self.data = data
-        self.connection.send(self.data.encode("UTF-8"))
+        self.connection.send(data.encode("UTF-8"))
         pass
         
     # More methods may be needed!
+
+
+def run():
+    connected = True
+    print("Welcome! Type '?' for information")
+    while connected:
+        textIn = input()
+        if (textIn[0] == "!"):
+            textIn = textIn[1:]
+            textIn = textIn.split(" ", 1)
+            message_parser.encode(textIn[0], textIn[1])
+            if (textIn[0] == "logout"):
+                connected = False
+                client.disconnect()
+        elif (textIn[0] == "?"):
+            print("How the client works:/nUse Requests by typing '!YourRequest' 'content'/nAvailable requests:/nlogin <username>/nlogout/names (list users in chat)")
+        else:
+            message_parser.encode("msg" , textIn)
 
 if __name__ == '__main__':
     """
@@ -36,4 +52,8 @@ if __name__ == '__main__':
 
     No alterations are necessary
     """
+    
     client = Client('localhost', 9998)
+    message_parser = MessageParser()
+    run()
+    
