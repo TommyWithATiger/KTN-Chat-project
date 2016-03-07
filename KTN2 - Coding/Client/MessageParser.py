@@ -26,18 +26,15 @@ class MessageParser():
             print_formatted_message(payload['timestamp'], "error", "Recieved impossible response")
 
     def parse_error(self, payload):
-        payload = json.loads(payload)
         print_formatted_message(payload['timestamp'], payload['response'], payload['content'])
 
     def parse_info(self, payload):
-        payload = json.loads(payload)
         print_formatted_message(payload['timestamp'], payload['response'], payload['content'])
 
-    def parse_message(payload):
-        payload = json.loads(payload)
+    def parse_message(self, payload):
         print_formatted_message(payload['timestamp'], payload['response'], payload['content'])
 
-    def parse_history(payload):
+    def parse_history(self, payload):
         payload = payload['history']
         for i in payload.items():
             print_formatted_message(payload[i]['timestamp'], payload[i]['repsonse'], payload[i]['content'])
