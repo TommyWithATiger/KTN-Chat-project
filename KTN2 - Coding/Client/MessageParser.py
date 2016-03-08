@@ -1,5 +1,9 @@
 import json
+<<<<<<< HEAD
+from datetime import datetime
+=======
 
+>>>>>>> origin/master
 
 def print_formatted_message(timestamp, response_type, content):
     print(timestamp, response_type, content)
@@ -34,7 +38,13 @@ class MessageParser():
     def parse_message(self, payload):
         print_formatted_message(payload['timestamp'], payload['response'], payload['content'])
 
+<<<<<<< HEAD
+    def encode(request, content):
+        encoded = json.dumps({"request": request , "content": content})
+        return encoded
+=======
     def parse_history(self, payload):
         payload = payload['history']
         for i in payload.items():
             print_formatted_message(payload[i]['timestamp'], payload[i]['repsonse'], payload[i]['content'])
+>>>>>>> origin/master
