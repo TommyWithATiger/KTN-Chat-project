@@ -53,6 +53,7 @@ def parse_request(payload, user):
                              "Request not supported by the server, use 'help' for a list of supported requests"))
     except Exception as e:
         print("Exception")
+        print(e.__str__())
         user.send(encode("server", "error", "Could not handle input, sending to fast, in the wrong format, in long message"))
 
 
@@ -68,9 +69,18 @@ def parse_login(username, user):
         users[user] = username
         unlogged_users.remove(user)
         user.send(encode("server", "info", "Login successful!"))
-        if len(history) != 0:
+        time.sleep(0.1)
+        local_history = history[:]
+        if len(local_history) != 0:
             history_json = []
-            for message in history:
+            current_length = 200
+            for message in local_history:
+                current_length += len(message.to_JSON())
+                if current_length > 4096:
+                    user.send(encode("server", "history", history_json))
+                    history_json = []
+                    time.sleep(0.1)
+                    current_length = 200 + len(message.to_JSON())
                 history_json.append(json.loads(message.to_JSON()))
             user.send(encode("server", "history", history_json))
 
@@ -84,6 +94,9 @@ def parse_logout(content, user):
 
 
 def parse_message(message, user):
+    if len(message) > 3796:
+        user.send(encode("server", "info", "Too long message"))
+        return
     message = Message(message, get_username(user), current_timestamp())
     history.append(message)
     message_JSON = message.to_JSON()
@@ -137,13 +150,9 @@ class ClientHandler(socketserver.BaseRequestHandler):
             try:
                 received_string = self.connection.recv(4096)
                 parse_request(received_string.decode(), self)
+                time.sleep(0.2)
             except ConnectionResetError:
-                if user_logged_in(self):
-                    users.pop(self)
-                else:
-                    unlogged_users.remove(self)
                 time.sleep(1)
-                self.close()
 
     def close(self):
         self.run = False
