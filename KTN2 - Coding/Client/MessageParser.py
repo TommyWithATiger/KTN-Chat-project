@@ -18,7 +18,6 @@ class MessageParser():
 
     def parse(self, payload):
         payload = json.loads(payload)
-
         if payload['response'] in self.possible_responses:
             return self.possible_responses[payload['response']](payload)
         else:
@@ -31,13 +30,13 @@ class MessageParser():
         print_formatted_message(payload['timestamp'], payload['response'], payload['content'])
 
     def parse_message(self, payload):
-        print_formatted_message(payload['timestamp'], payload['response'], payload['content'])
+        print_formatted_message(payload['timestamp'], payload['sender'], payload['content'])
 
     def encode(self, request, content):
         encoded = json.dumps({"request": request , "content": content})
         return encoded
 
     def parse_history(self, payload):
-        payload = payload['history']
-        for i in payload.items():
-            print_formatted_message(payload[i]['timestamp'], payload[i]['repsonse'], payload[i]['content'])
+        payload = payload['content']
+        for message in payload:
+            self.parse_message(message)

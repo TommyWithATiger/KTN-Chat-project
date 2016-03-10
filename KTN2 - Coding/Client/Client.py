@@ -3,6 +3,7 @@ import socket
 from MessageReceiver import MessageReceiver
 from MessageParser import MessageParser
 
+
 class Client:
     """This is the chat client class"""
 
@@ -14,36 +15,41 @@ class Client:
         self.run()
 
     def run(self):
-        self.messagereceiver = MessageReceiver(self, self.connection)
         self.connection.connect((self.host, self.server_port))
-        
+        self.messagereceiver = MessageReceiver(self, self.connection)
+        self.messagereceiver.start()
+
     def disconnect(self):
-        self.messagereceiver.exit()
+        self.messagereceiver._isAlive = False
         pass
 
     def send_payload(self, data):
         self.connection.send(data.encode("UTF-8"))
         pass
-        
-    # More methods may be needed!
+
+        # More methods may be needed!
 
 
 def run():
     connected = True
     print("Welcome! Type '?' for information")
     while connected:
-        textIn = input()
-        if (textIn[0] == "!"):
-            textIn = textIn[1:]
-            textIn = textIn.split(" ", 1)
-            send_payload(message_parser.encode(textIn[0], textIn[1]))
-            if (textIn[0] == "logout"):
+        text_in = input()
+        if text_in[0] == "!":
+            text_in = text_in[1:]
+            text_in = text_in.split(" ", 1)
+            if len(text_in) == 1:
+                text_in.append("")
+            client.send_payload(message_parser.encode(text_in[0], text_in[1]))
+            if text_in[0] == "logout":
                 connected = False
                 client.disconnect()
-        elif (textIn[0] == "?"):
-            print("How the client works:/nUse Requests by typing '!YourRequest' 'content'/nAvailable requests:/nlogin <username>/nlogout/nnames (list users in chat)")
+        elif text_in[0] == "?":
+            print("How the client works:\n"
+                  "Use Requests by typing '!YourRequest' 'content'\n")
         else:
-            send_payload(message_parser.encode("msg" , textIn))
+            client.send_payload(message_parser.encode("msg", text_in))
+
 
 if __name__ == '__main__':
     """
@@ -52,8 +58,7 @@ if __name__ == '__main__':
 
     No alterations are necessary
     """
-    
+
     client = Client('localhost', 9998)
     message_parser = MessageParser()
     run()
-    

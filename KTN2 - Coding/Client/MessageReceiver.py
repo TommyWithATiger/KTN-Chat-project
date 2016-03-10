@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from threading import Thread
+from MessageParser import MessageParser
+import MessageParser
+import socket
 
 
 class MessageReceiver(Thread):
@@ -11,12 +14,13 @@ class MessageReceiver(Thread):
     
 
     def __init__(self, client, connection):
-        """
-        This method is executed when creating a new MessageReceiver object
-        """
-        threading.Thread.__init__(self)
-        jsonSocket.JsonServer.__init__(self)
-        self._isAlive = False
+        Thread.__init__(self)
+        self.client = client
+        self.connection = connection
+        self.message_parser = MessageParser.MessageParser()
+        #threading.Thread.__init__(self)
+        #jsonSocket.JsonServer.__init__(self)
+        self._isAlive = True
 
         # Flag to run thread as a deamon
         self.daemon = True
@@ -26,25 +30,22 @@ class MessageReceiver(Thread):
     def run(self):
         # TODO: Make MessageReceiver receive and handle payloads
         while self._isAlive:
+            # try:
+            #     self.acceptConnection()
+            # except socket.timeout as e:
+            #     logger.debug("socket.timeout: %s" % e)
+            #     continue
+            # except Exception as e:
+            #     logger.exception(e)
+            #     continue
+
+            #while self._isAlive:
             try:
-                self.acceptConnection()
-            except socket.timeout as e:
-                logger.debug("socket.timeout: %s" % e)
+                received = self.connection.recv(4096).decode("UTF-8")
+                self.message_parser.parse(received)
+            except socket.timeout:
+                print("Timeout")
                 continue
             except Exception as e:
-                logger.exception(e)
-                continue
- 
-            while self._isAlive:
-                try:
-                    obj = self.readObj()
-                    self._processMessage(obj)
-                except socket.timeout as e:
-                    logger.debug("socket.timeout: %s" % e)
-                    continue
-                except Exception as e:
-                    logger.exception(e)
-                    self._closeConnection()
-                    break
-
-        pass
+                print(e)
+                break
