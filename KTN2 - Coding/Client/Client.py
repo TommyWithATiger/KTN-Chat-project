@@ -51,7 +51,7 @@ def run():
             else:
                 client.send_payload(message_parser.encode("msg", text_in))
         else:
-            print("Write something")
+            print("\nWrite something")
 
 
 if __name__ == '__main__':
