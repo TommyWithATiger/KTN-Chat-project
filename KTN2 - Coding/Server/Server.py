@@ -2,6 +2,7 @@
 import socketserver
 import re
 import json
+import time
 from datetime import datetime
 from Message import Message
 
@@ -51,8 +52,8 @@ def parse_request(payload, user):
             user.send(encode("server", "error",
                              "Request not supported by the server, use 'help' for a list of supported requests"))
     except Exception as e:
-        print("Exception" + e)
-        user.send(encode("server", "error", "Could not handle input, sending to fast or in the wrong format?"))
+        print("Exception")
+        user.send(encode("server", "error", "Could not handle input, sending to fast, in the wrong format, in long message"))
 
 
 def parse_login(username, user):
@@ -88,7 +89,11 @@ def parse_message(message, user):
     message_JSON = message.to_JSON()
     for client in users.keys():
         if client != user:
-            client.send(message_JSON)
+            try:
+                client.send(message_JSON)
+            except ConnectionResetError:
+                users.pop(client)
+    user.send(encode("server", "info", "Message recieved"))
 
 
 def parse_help(content, user):
@@ -129,14 +134,25 @@ class ClientHandler(socketserver.BaseRequestHandler):
 
         # Loop that listens for messages from the client
         while self.run:
-            received_string = self.connection.recv(4096)
-            parse_request(received_string.decode(), self)
+            try:
+                received_string = self.connection.recv(4096)
+                parse_request(received_string.decode(), self)
+            except ConnectionResetError:
+                if user_logged_in(self):
+                    users.pop(self)
+                else:
+                    unlogged_users.remove(self)
+                time.sleep(1)
+                self.close()
 
     def close(self):
         self.run = False
 
     def send(self, payload):
-        self.connection.send(payload.encode("utf-8"))
+        try:
+            self.connection.send(payload.encode("utf-8"))
+        except BrokenPipeError:
+            self.close()
 
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -144,7 +160,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 
 if __name__ == "__main__":
-    HOST, PORT = 'localhost', 9998
+    HOST, PORT = '10.20.105.105', 9998
     print('Server running...')
 
     # Set up and initiate the TCP server
