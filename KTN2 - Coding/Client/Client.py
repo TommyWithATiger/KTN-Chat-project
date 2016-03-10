@@ -35,20 +35,23 @@ def run():
     print("Welcome! Type '?' for information")
     while connected:
         text_in = input()
-        if text_in[0] == "!":
-            text_in = text_in[1:]
-            text_in = text_in.split(" ", 1)
-            if len(text_in) == 1:
-                text_in.append("")
-            client.send_payload(message_parser.encode(text_in[0], text_in[1]))
-            if text_in[0] == "logout":
-                connected = False
-                client.disconnect()
-        elif text_in[0] == "?":
-            print("How the client works:\n"
-                  "Use Requests by typing '!YourRequest' 'content'\n")
+        if not(text_in == ""):
+            if text_in[0] == "!":
+                text_in = text_in[1:]
+                text_in = text_in.split(" ", 1)
+                if len(text_in) == 1:
+                    text_in.append("")
+                client.send_payload(message_parser.encode(text_in[0], text_in[1]))
+                if text_in[0] == "logout":
+                    connected = False
+                    client.disconnect()
+            elif text_in[0] == "?":
+                print("How the client works:\n"
+                      "Use Requests by typing '!YourRequest' 'content'\n")
+            else:
+                client.send_payload(message_parser.encode("msg", text_in))
         else:
-            client.send_payload(message_parser.encode("msg", text_in))
+            print("Write something")
 
 
 if __name__ == '__main__':
@@ -59,6 +62,6 @@ if __name__ == '__main__':
     No alterations are necessary
     """
 
-    client = Client('localhost', 9998)
+    client = Client("10.20.105.105", 9998)
     message_parser = MessageParser()
     run()
