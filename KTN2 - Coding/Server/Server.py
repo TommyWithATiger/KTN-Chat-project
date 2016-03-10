@@ -50,7 +50,8 @@ def parse_request(payload, user):
         else:
             user.send(encode("server", "error",
                              "Request not supported by the server, use 'help' for a list of supported requests"))
-    except:
+    except Exception as e:
+        print("Exception" + e)
         user.send(encode("server", "error", "Could not handle input, sending to fast or in the wrong format?"))
 
 
