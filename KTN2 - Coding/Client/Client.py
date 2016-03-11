@@ -34,7 +34,7 @@ def run():
     connected = True
     print("Welcome! Type '?' for information")
     while connected:
-        text_in = input()
+        text_in = input("> ")
         if not(text_in == ""):
             if text_in[0] == "!":
                 text_in = text_in[1:]
@@ -62,6 +62,6 @@ if __name__ == '__main__':
     No alterations are necessary
     """
 
-    client = Client("10.20.105.105", 9998)
+    client = Client("192.168.0.100", 9998)
     message_parser = MessageParser()
     run()
