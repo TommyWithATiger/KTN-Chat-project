@@ -12,8 +12,7 @@ def username_available(username):
 
 
 def valid_username(username):
-    pattern = re.compile("^[A-Za-z0-9]+$")
-    return pattern.match(username)
+    return username_pattern.match(username)
 
 
 def user_logged_in(user):
@@ -45,22 +44,23 @@ def parse_request(payload, user):
     try:
         payload = json.loads(payload)
         if (not user_logged_in(user)) and payload['request'] not in ['help', 'login']:
-            user.send(encode("server", "error", "Please login to get access to that command, use 'help' for login help"))
+            user.send(
+                    encode("server", "error", "Please login to get access to that command, use 'help' for login help"))
         elif payload['request'] in request_codes.keys():
             request_codes[payload['request']](payload['content'], user)
         else:
             user.send(encode("server", "error",
                              "Request not supported by the server, use 'help' for a list of supported requests"))
     except Exception as e:
-        print("Exception")
-        print(e.__str__())
-        print(e.__traceback__)
-        user.send(encode("server", "error", "Could not handle input, sending to fast, in the wrong format, in long message"))
+        print("Hit an exception at " + current_timestamp() + ", with client " + user.ip + ". Continuing serving, "
+              "see error trace : \n" + e.__str__() + "\n" + e.__traceback__)
+        user.send(encode("server", "error",
+                         "Could not handle your request, error has been logged. Make sure your client works properly"))
 
 
 def parse_login(username, user):
     if user_logged_in(user):
-        user.send(encode("server", "error", "Username already taken"))
+        user.send(encode("server", "error", "You are already logged in"))
     elif not valid_username(username):
         user.send(encode("server", "error",
                          "Username not valid, username has to be capital/lowercase letters and/or numbers"))
@@ -70,13 +70,14 @@ def parse_login(username, user):
         users[user] = username
         unlogged_users.remove(user)
         user.send(encode("server", "info", "Login successful!"))
+
+        # A short delay not noticeable to the human eye, but makes response easier to handle client-side, as this in
+        # almost all cases will make sure the client only has to handle one json object per string received.
         time.sleep(0.1)
         local_history = history[:]
         if len(local_history) != 0:
             history_json = []
-            current_length = 200
             for message in local_history:
-                current_length += len(message.to_JSON())
                 history_json.append(json.loads(message.to_JSON()))
             user.send(encode("server", "history", history_json))
 
@@ -102,10 +103,7 @@ def parse_message(message, user):
                 client.send(message_JSON)
             except ConnectionResetError:
                 users.pop(client)
-            except Exception as e:
-                print("Exception 2")
-                print(e.__str__())
-                print(client.ip)
+
     user.send(encode("server", "info", "Message recieved"))
 
 
@@ -128,6 +126,7 @@ def parse_names(content, user):
 history = []
 users = {}
 unlogged_users = []
+username_pattern = re.compile("^[A-Za-z0-9]+$")
 request_codes = {
     'login': parse_login,
     'logout': parse_logout,
@@ -160,8 +159,15 @@ class ClientHandler(socketserver.BaseRequestHandler):
     def send(self, payload):
         try:
             self.connection.send(payload.encode("utf-8"))
-        except BrokenPipeError:
+        except BrokenPipeError and ConnectionResetError:
+            # Close connection to client if pipe is broken or the connection is reset, makes the server run smoothly
             self.close()
+            parse_logout("", self)
+        except Exception as e:
+            # Handle all other exceptions meet when sending to the client. Has to be handled at this level otherwise it
+            # would affect messages to the other clients
+            print("Encountered an exception while sending a response to the client with IP: " + self.ip)
+            print("Error trace: \n" + e.__str__() + "\n" + e.__traceback__)
 
 
 class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):

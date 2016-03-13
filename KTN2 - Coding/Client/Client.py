@@ -34,7 +34,7 @@ def run():
     connected = True
     print("Welcome! Type '?' for information")
     while connected:
-        text_in = input("> ")
+        text_in = input("")
         if not(text_in == ""):
             if text_in[0] == "!":
                 text_in = text_in[1:]
