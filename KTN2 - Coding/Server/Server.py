@@ -27,7 +27,7 @@ def get_username(user):
 
 
 def current_timestamp():
-    return datetime.now().strftime("%m.%d %H:%M%:%S")
+    return datetime.now().strftime("%m.%d %H:%M:%S")
 
 
 def encode(sender, response, content):
@@ -54,6 +54,7 @@ def parse_request(payload, user):
     except Exception as e:
         print("Exception")
         print(e.__str__())
+        print(e.__traceback__)
         user.send(encode("server", "error", "Could not handle input, sending to fast, in the wrong format, in long message"))
 
 
@@ -76,11 +77,6 @@ def parse_login(username, user):
             current_length = 200
             for message in local_history:
                 current_length += len(message.to_JSON())
-                if current_length > 4096:
-                    user.send(encode("server", "history", history_json))
-                    history_json = []
-                    time.sleep(0.1)
-                    current_length = 200 + len(message.to_JSON())
                 history_json.append(json.loads(message.to_JSON()))
             user.send(encode("server", "history", history_json))
 
@@ -106,6 +102,10 @@ def parse_message(message, user):
                 client.send(message_JSON)
             except ConnectionResetError:
                 users.pop(client)
+            except Exception as e:
+                print("Exception 2")
+                print(e.__str__())
+                print(client.ip)
     user.send(encode("server", "info", "Message recieved"))
 
 
@@ -169,7 +169,7 @@ class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
 
 
 if __name__ == "__main__":
-    HOST, PORT = '10.20.105.105', 9998
+    HOST, PORT = '192.168.0.100', 9998
     print('Server running...')
 
     # Set up and initiate the TCP server

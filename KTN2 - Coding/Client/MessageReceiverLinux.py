@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from threading import Thread
-from MessageParser import MessageParser
+from MessageParserLinux import MessageParser
 import socket
 import json
 

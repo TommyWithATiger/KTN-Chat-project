@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import socket
-from MessageReceiver import MessageReceiver
-from MessageParser import MessageParser
+from MessageReceiverLinux import MessageReceiver
+from MessageParserLinux import MessageParser
 
 
 class Client:
@@ -35,7 +35,7 @@ def run():
     print("Welcome! Type '?' for information")
     while connected:
         text_in = input("> ")
-        if not(text_in == ""):
+        if not (text_in == ""):
             if text_in[0] == "!":
                 text_in = text_in[1:]
                 text_in = text_in.split(" ", 1)

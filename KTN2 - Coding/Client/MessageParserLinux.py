@@ -1,8 +1,14 @@
 import json
+import sys
+import readline
 
 
 def print_formatted_message(timestamp, response_type, content):
+    test = readline.get_line_buffer()
+    sys.stdout.write('\r'+' '*(len(readline.get_line_buffer()) + 2)+'\r')
     print(timestamp, response_type, content)
+    sys.stdout.write('> ' + test)
+    sys.stdout.flush()
 
 
 class MessageParser:
