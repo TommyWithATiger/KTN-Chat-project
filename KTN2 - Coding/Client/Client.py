@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 import socket
+import sys
 from MessageReceiver import MessageReceiver
 from MessageParser import MessageParser
 
 
 class Client:
-    """This is the chat client class"""
-
     def __init__(self, host, server_port):
-        """This method is run when creating a new Client object"""
         self.host = host
         self.server_port = server_port
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,8 +24,6 @@ class Client:
     def send_payload(self, data):
         self.connection.send(data.encode("UTF-8"))
         pass
-
-        # More methods may be needed!
 
 
 def run():
@@ -47,21 +43,15 @@ def run():
                     client.disconnect()
             elif text_in[0] == "?":
                 print("How the client works:\n"
-                      "Use Requests by typing '!YourRequest' 'content'\n")
+                      "Use Requests by typing '!YourRequest' 'content'\n"
+                      "!logout disconnects the client from the server")
             else:
                 client.send_payload(message_parser.encode("msg", text_in))
         else:
-            print("\nWrite something")
+            print("Please input at least one character!")
 
 
 if __name__ == '__main__':
-    """
-    This is the main method and is executed when you type "python ClientLinux.py"
-    in your terminal.
-
-    No alterations are necessary
-    """
-
-    client = Client("192.168.0.100", 9998)
+    client = Client(sys.argv[1], int(sys.argv[2]))
     message_parser = MessageParser()
     run()
