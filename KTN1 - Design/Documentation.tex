@@ -12,6 +12,7 @@
 \maketitle
 
 \section{Client}
+    For the client there are two sets of python files which are almost identical, the difference being that the one labeled Linux handles formatting the input in case of receiving a response from the server at the same time that you write a request. As this is easily done in Linux, opposed to Windows and OSX, we decided to include it in the client. The Linux code does not run in Windows and has some problems with formatting in OSX, for all other OSes than Linux use the other Client files.
     \subsection{Client.py}
         \subsubsection{Functions}
             \begin{description}
@@ -55,6 +56,7 @@
                             \item[client] - The Client object connected to the server
                             \item[connection] - The connection to the server from the client
                             \item[message\_parser] - A MessageParser object for decoding and handling the content of incoming messages.
+                            \item[is\_running] - Variable used to check if the MessageReceiver object should continue running.
                     \end{description}
                 \textbf{Methods}
                     \begin{description}
@@ -97,13 +99,16 @@
             \begin{description}
                 \item[username\_available(username : string)] - Returns boolean for availability of username.
                 \item[valid\_username(username : string)] - Returns if username is in the format [A-z0-9]+
+                \item[user\_logged\_in(user : ClientHandler)] - Returns boolean if the user is logged in
+                \item[get\_username(user: ClientHandler)] - Returns the username of the client as a string, this string is empty if the user is not logged in.
+                \item[current\_timestamp()] - Returns the current date as a string in the format, "MM.DD HH:MM:SS".
                 \item[encode(sender : string, response : string, content : string)] - Returns a json string in the servers response format with the current time as timestamp.
                 \item[parse\_request(payload : string, user : ClientHandler)] - Parses the json object, checks if the user has access to the request and call on the appropriate function for handling the request (request\_codes).
                 \item[parse\_login(username : string, user : ClientHandler)] - Checks if the user is logged in, username is in wrong format or username is taken and sends error message if necessary, if not register user and send info response. Sends any message history the server has.
-                \item[parse\_logout(user : ClientHandler)] - Disconnects the user, removes user from user dictionary.
+                \item[parse\_logout(content : string, user : ClientHandler)] - Disconnects the user, removes user from user dictionary.
                 \item[parse\_message(message : string, user : ClientHandler)] - Adds message object to history and sends message to all other users logged in to the server.
-                \item[parse\_help(user : ClientHandler)] - Sends the user a response to the user with a help text.
-                \item[parse\_names(user : ClientHandler)] - Sends the user a response with the username of all logged in users.
+                \item[parse\_help(content : string, user : ClientHandler)] - Sends the user a response to the user with a help text.
+                \item[parse\_names(content : string, user : ClientHandler)] - Sends the user a response with the username of all logged in users.
             \end{description}
         \subsubsection{Variables}
             \begin{description}
@@ -131,6 +136,7 @@
                         \item[ip] - IP address of client.
                         \item[port] - Port for the connection at the client.
                         \item[connection] - The connection between the client and the server.
+                        \item[run] - Indicates if the object should continue to run
                     \end{description}
                 \textbf{Methods}
                     \begin{description}

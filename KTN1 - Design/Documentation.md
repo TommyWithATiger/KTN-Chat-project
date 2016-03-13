@@ -1,5 +1,7 @@
 # Client.py
 
+For the client there are two sets of python files which are almost identical, the difference being that the one labeled Linux handles formatting the input in case of receiving a response from the server at the same time that you write a request. As this is easily done in Linux, opposed to Windows and OSX, we decided to include it in the client. The Linux code does not run in Windows and has some problems with formatting in OSX, for all other OSes than Linux use the other Client files.
+
 ## Functions
 
 * **run()** - Handles logic at runtime, this includes taking input from the user and parsing the input into the send_payload() method in the client object. This function also prints out a short message at startup with information about the client.
@@ -41,6 +43,7 @@ Handles message receiving
 * **client** - The Client object connected to the server.
 * **connection** - The connection to the server from the client. 
 * **message_parser** - A MessageParser object for decoding and handling the content of incoming messages.
+* **is_running** - Variable used to check if the MessageReceiver object should continue running.
 
 ##### Methods
 
@@ -81,13 +84,16 @@ Contains all server logic
 
 * **username_available(username : string)** - Returns boolean for availability of username.
 * **valid_username(username : string)** -  Returns if username is in the format [A-z0-9]+
+* **[user\_logged\_in(user : ClientHandler)** - Returns boolean if the user is logged in
+* **get_username(user: ClientHandler)** - Returns the username of the client as a string, this string is empty if the user is not logged in.
+* **current_timestamp()** - Returns the current date as a string in the format, "MM.DD HH:MM:SS".
 * **encode(sender : string, response : string, content : string)** - Returns a json string in the servers response format with the current time as timestamp.
 * **parse_request(payload : string, user : ClientHandler)** - Parses the json object, checks if the user has access to the request and call on the appropriate function for handling the request (request\_codes).
 * **parse_login(username : string, user: ClientHandler)** - Checks if the user is logged in, username is in wrong format or username is taken and sends error message if necessary, if not register user and send info response. Sends any message history the server has
-* **parse_logout(user: ClientHandler)** - Disconnects the user, removes user from user dictionary
+* **parse_logout(content : string, user: ClientHandler)** - Disconnects the user, removes user from user dictionary
 * **parse_message(message : string, user : ClientHandler)** - Adds message object to history and sends message to all other users logged in to the server.
-* **parse_help(user : ClientHandler)** - Sends the user a response to the user with a help text
-* **parse_names(user : ClientHandler)** - Sends the user a response with the username of all logged in users.
+* **parse_help(content : string, user : ClientHandler)** - Sends the user a response to the user with a help text
+* **parse_names(content : string, user : ClientHandler)** - Sends the user a response with the username of all logged in users.
 
 ## Variables
 
@@ -113,6 +119,7 @@ Handles connection between server and client, listens for requests from client a
 * **ip** - IP address of client
 * **port** - Port for the connection at the client.
 * **connection** - The connection between the client and the server.
+* **run** - Indicates if the object should continue to run
 
 ##### Methods
 
