@@ -19,6 +19,7 @@ class Client:
 
     def disconnect(self):
         self.messagereceiver.is_running = False
+        self.connection.close()
         pass
 
     def send_payload(self, data):
@@ -44,7 +45,7 @@ def run():
             elif text_in[0] == "?":
                 print("How the client works:\n"
                       "Use Requests by typing '!YourRequest' 'content'\n"
-                      "!logout disconnects the client from the server")
+                      "'!logout' disconnects the client from the server")
             else:
                 client.send_payload(message_parser.encode("msg", text_in))
         else:
